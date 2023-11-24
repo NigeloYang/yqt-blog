@@ -1,11 +1,101 @@
 <template>
-<div>
-	<h1>文章模块开发中</h1>
-</div>
+  <section class="yqt-blog-article">
+    <aside class="blog-left" :style="{'background-image': backgroundImg}">
+      <section class="blog-info">
+        <p class="info-title">博文精选</p>
+        <p class="info-title-sub">有趣的人记录有趣的事。 </p>
+        <p class="info-title-sub ban-bred">
+          <span @click="goToPage('/blog')" title="发现更多有趣的文章"> 发现更多 <i class="iconfont icon-shujuzhongxin"></i></span>
+        </p>
+      </section>
+    </aside>
+    <section class="blog-right">
+      <section class="blog-list">
+        <article class="blog-item" v-for="(post,index) in state.postList" :key="index"
+                 @click="goToPage('/PostDetail/'+post._id)">
+          <header class="blog-header" :style="{width:!post.cover&&'100%'}">
+            <h2>{{ post.title }}</h2>
+            <p class="abstract">{{ post.abstract }}</p>
+            <div class="blog-tip">
+              <span>{{ TimeUtils.formatRelativeTime(post.createdAt) }} 发布</span>
+              <span><i class="iconfont icon-chakan2"></i> {{ post.viewNum }}</span>
+              <!--                                                      |  <span>5条喜欢</span>-->
+            </div>
+          </header>
+          <div class="blog-cover" v-if="post.cover">
+            <img class="lazy-image" :data-src="post.cover">
+          </div>
+        </article>
+      </section>
+    </section>
+  </section>
 </template>
 
 <script setup>
+import {nextTick, onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue'
 
+import {goToPage} from "@/utils/util.router";
+import {TimeUtils} from "@/utils//util.time";
+import lazyLoadImages from "@/utils//util.lazyLoad";
+
+import {blog_articlesList} from "@/api/modules/api.blog_articles";
+
+let currentImageIndex = 1;
+const totalImages = 9;
+const backgroundPosition = ref('50% 0');
+const backgroundImg = ref('url(http://www.zhouyi.run:3089/v1/common/files/preview/img/1691571900783.png)');
+
+const state = reactive({
+  query: {
+    params: {
+      recommended: true,
+      status: true,
+    },
+    pagination: {
+      current: 1,
+      pageSize: 3,
+    },
+  },
+  postList: []
+})
+
+const handleScroll = (e) => {
+  const offsetY = window.scrollY;
+  backgroundPosition.value = `50% ${offsetY * 0.02}%`;
+}
+
+function updateBackgroundImage() {
+  backgroundImg.value = `url(http://www.zhouyi.run:3089/v1/common/files/preview/img/${getImageName(currentImageIndex)}.jpg)`;
+  currentImageIndex = (currentImageIndex % totalImages) + 1;
+}
+
+function getImageName(index) {
+  return index < 10 ? `0${index}` : `${index}`;
+}
+
+// 数据更新后使用 nextTick 来确保在 DOM 更新后执行 lazyLoadImages 方法
+watch(() => state.postList, () => {
+  nextTick(() => {
+    lazyLoadImages();
+  })
+});
+
+const getDataList = () => {
+  blog_articlesList(state.query).then(res => {
+    state.postList = res.data.result || []
+  })
+}
+
+getDataList()
+
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+  setInterval(updateBackgroundImage, 8000);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <style scoped lang="scss">

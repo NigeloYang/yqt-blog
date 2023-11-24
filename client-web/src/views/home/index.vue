@@ -22,8 +22,10 @@
 					</div>
 				</div>
 			</section>
+
 			<!--主要内容 展示内容-->
 			<section class="main-container">
+
 				<!--主要内容 个人简介-->
 				<div class="container-row">
 					<div class="container-left">
@@ -127,6 +129,7 @@
 						</div>
 					</div>
 				</div>
+
 				<!--主要内容 重要提示-->
 				<section class="notice notice-temp c-mb-40">
 					<div class="notice-line">
@@ -135,6 +138,7 @@
 						</div>
 					</div>
 				</section>
+
 				<!--主要内容 文字介绍-->
 				<section class="about">
 					<YqtSectionHeader title="Tips" titleNum="02"/>
@@ -192,8 +196,8 @@
 		<!--地理位置模块-->
 		<WorldMap/>
 
-		<YqtModal>
-			<WorkDetail></WorkDetail>
+		<YqtModal :minWidth="350" :show="state.show.work" title="项目详情" key="ViewUserInfo" @close="close">
+			<WorkDetail :viewData="state.viewData"></WorkDetail>
 		</YqtModal>
 
 	</section>
@@ -327,7 +331,6 @@ onMounted(() => {
 		element.style.opacity = 1;
 		element.style.transform = 'translateY(0px)';
 	});
-
 
 	// 懒加载图片
 	lazyLoadImages();
