@@ -20,7 +20,7 @@ export default defineConfig({
     proxy: {
       '/v1': {
         target: ' http://localhost:3089',
-        // target: ' http://www.zhouyi.run:3089',
+        // target: ' http://www.yangqiantao.run:3089',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, ''),
       }
